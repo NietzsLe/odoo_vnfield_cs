@@ -1,7 +1,7 @@
 import requests
 
 
-class ApprovalClient:
+class ApprovalIntegration:
 
     @classmethod
     def post(cls, approval, id, url):
@@ -53,3 +53,8 @@ class ApprovalClient:
                 data[field] = value
 
         return data
+    
+    @classmethod
+    def checkExternalCommunication(cls, approval):
+        
+
