@@ -23,8 +23,25 @@ from odoo import api, fields, models, http
 from odoo.tools.float_utils import float_compare
 from odoo.exceptions import UserError
 
-from ..integration.approval_client import ApprovalClient
-
 
 class Approval(models.Model):
     _inherit = "vnfield.approval"
+
+    external_id = fields.Integer()
+
+    def to_dict(self):
+        self.ensure_one()
+        result = {}
+        for field in self._fields:
+            if field in ["id", "__last_update", "create_date", "write_date"]:
+                continue
+            f = self._fields[field]
+            if isinstance(f, fields.Many2one):
+                result[field] = self[field].id  # ID thôi, không phải dict
+            elif isinstance(f, fields.Many2many):
+                result[field] = [(6, 0, self[field].ids)]  # Command format
+            elif isinstance(f, fields.One2many):
+                result[field] = [(0, 0, line.to_dict()) for line in self[field]]
+            else:
+                result[field] = self[field]
+        return result

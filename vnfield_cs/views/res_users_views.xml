@@ -1,0 +1,15 @@
+<odoo>
+    <record id="view_users_form_inherit_organization" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.organization</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='signature']" position="before">
+                <field name="organization_name" />
+                <field name="external_login" />
+                <field name="external_password" />
+                <field name="external_api_key" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
