@@ -1,6 +1,8 @@
 import requests
 from .helper import IntegrationHelperService
 from typing import TYPE_CHECKING
+from .auth import AuthIntegrationService
+import traceback
 
 if TYPE_CHECKING:
     from ...models.approval import Approval
@@ -19,43 +21,44 @@ class ISApprovalClient:
 
         self.base_url = (
             self.env["ir.config_parameter"].sudo().get_param("vnfield_cs.host_of_is")
-            + "/send_request?model=vnfield_cs.approval"
+            + "/send_request?model=vnfield.approval"
         )
 
-    def update(self, vals: dict, approval: Approval, user: "ResUsers"):
+        self.auth_service = AuthIntegrationService(env)
+
+    def update(self, vals: dict, approval: "Approval", user: "ResUsers"):
         try:
             body = {"fields": vals.keys(), "values": vals}
-            if approval.external_id:
-                url = self.base_url + "&Id=" + str(approval.external_id)
+            if approval["external_id"]:
+                url = self.base_url + "&Id=" + str(approval["external_id"])
                 headers = {
                     "Content-Type": "application/json",
                     "login": user.external_login,
                     "password": user.external_password,
-                    "api-key": user.external_api_key,
+                    "api-key": self.auth_service.get_api_key(user),
                 }
                 print(body)
                 requests.put(url, json=body, headers=headers)
-        except:
-            print("An exception occurred")
+        except Exception as e:
+            traceback.print_exc()
 
-    def create(self, vals: dict, approval: Approval, user: "ResUsers"):
+    def create(self, vals: dict, user: "ResUsers"):
         try:
             body = {"fields": vals.keys(), "values": vals}
-            if approval.external_id:
-                url = self.base_url
-                headers = {
-                    "Content-Type": "application/json",
-                    "login": user.external_login,
-                    "password": user.external_password,
-                    "api-key": user.external_api_key,
-                }
-                print(body)
-                response = requests.post(url, json=body, headers=headers)
-                response_json = response.json()
-                print("Approval create res: ", response_json)
-                return {"external_id": response_json["New resource"][0]["id"]}
-        except:
-            print("An exception occurred")
+            url = self.base_url
+            headers = {
+                "Content-Type": "application/json",
+                "login": user.external_login,
+                "password": user.external_password,
+                "api-key": self.auth_service.get_api_key(user),
+            }
+            print(body)
+            response = requests.post(url, json=body, headers=headers)
+            response_json = response.json()
+            print("Approval create res: ", response_json)
+            return {"external_id": response_json["New resource"][0]["id"]}
+        except Exception as e:
+            traceback.print_exc()
 
 
 class ApprovalIntegrationService:
@@ -67,7 +70,7 @@ class ApprovalIntegrationService:
 
         self.approval_client = ISApprovalClient(self.env)
 
-    def update(self, vals: dict, approval: Approval, user: "ResUsers"):
+    def update(self, vals: dict, approval: "Approval", user: "ResUsers"):
 
         if approval.requester_id and not self.helper.user_is_internal(
             approval.requester_id

@@ -9,6 +9,7 @@
                 <field name="external_login" />
                 <field name="external_password" />
                 <field name="external_api_key" />
+                <field name="external_id" />
             </xpath>
         </field>
     </record>

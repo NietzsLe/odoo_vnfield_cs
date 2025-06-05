@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ...models.res_users import ResUsers
+from ...models.res_users import ResUsers
 
 
 class IntegrationHelperService:
@@ -19,7 +16,7 @@ class IntegrationHelperService:
         requester: bản ghi res.users
         Kiểm tra xem requester có thuộc tổ chức được config không.
         """
-
+        print("@User is internal: ", self.org_config)
         if requester.organization_name != self.org_config:
             return False
         # Nếu qua kiểm tra, làm tiếp công việc khác

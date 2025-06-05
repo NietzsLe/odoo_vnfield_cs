@@ -6,5 +6,6 @@ class ResUsers(models.Model):
 
     organization_name = fields.Char(string="Organization")
     external_login = fields.Char(string="External login")
-    external_password = fields.Char(string="External passwrd")
+    external_password = fields.Char(string="External password")
     external_api_key = fields.Char(string="External api key")
+    external_id = fields.Integer(string="External id")

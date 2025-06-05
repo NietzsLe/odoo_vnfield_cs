@@ -22,26 +22,44 @@
 from odoo import api, fields, models, http
 from odoo.tools.float_utils import float_compare
 from odoo.exceptions import UserError
+from ..services.integrations.approval import ApprovalIntegrationService
 
 
 class Approval(models.Model):
     _inherit = "vnfield.approval"
-
     external_id = fields.Integer()
+    changed_by_is = fields.Boolean()
+
+    @api.model
+    def write(self, vals):
+        # Gán giá trị mặc định hoặc xử lý logic
+
+        record = super(Approval, self).write(vals)
+        if record:
+            record = self.env["vnfield.approval"].browse(self.id)
+            # Hành động sau khi tạo
+            integration_service = ApprovalIntegrationService(self.env)
+            integration_service.update(vals, record, self.env.user)
+
+        return record
 
     def to_dict(self):
         self.ensure_one()
         result = {}
         for field in self._fields:
-            if field in ["id", "__last_update", "create_date", "write_date"]:
+            if field in [
+                "__last_update",
+                "create_date",
+                "write_date",
+                "external_id",
+            ]:
                 continue
             f = self._fields[field]
-            if isinstance(f, fields.Many2one):
-                result[field] = self[field].id  # ID thôi, không phải dict
-            elif isinstance(f, fields.Many2many):
-                result[field] = [(6, 0, self[field].ids)]  # Command format
-            elif isinstance(f, fields.One2many):
-                result[field] = [(0, 0, line.to_dict()) for line in self[field]]
-            else:
+            if (
+                not isinstance(f, fields.Many2one)
+                and not isinstance(f, fields.Many2many)
+                and not isinstance(f, fields.One2many)
+                and self[field]
+            ):
                 result[field] = self[field]
         return result
