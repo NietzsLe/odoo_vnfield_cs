@@ -2,7 +2,7 @@
     <data noupdate="1">
         <record id="param_default_organization" model="ir.config_parameter">
             <field name="key">vnfield_cs.organization_name</field>
-            <field name="value">SC1</field>
+            <field name="value">SC2</field>
         </record>
         <record id="host_of_is" model="ir.config_parameter">
             <field name="key">vnfield_cs.host_of_is</field>

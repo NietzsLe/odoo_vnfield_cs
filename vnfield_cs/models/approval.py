@@ -35,12 +35,14 @@ class Approval(models.Model):
         # Gán giá trị mặc định hoặc xử lý logic
 
         record = super(Approval, self).write(vals)
-        if record:
-            record = self.env["vnfield.approval"].browse(self.id)
-            # Hành động sau khi tạo
-            integration_service = ApprovalIntegrationService(self.env)
-            integration_service.update(vals, record, self.env.user)
-
+        if (not "changed_by_is" in vals) or vals["changed_by_is"] == "no":
+            if record:
+                record = self.env["vnfield.approval"].browse(self.id)
+                # Hành động sau khi tạo
+                integration_service = ApprovalIntegrationService(self.env)
+                integration_service.update(vals, record, self.env.user)
+        else:
+            self.write({"changed_by_is": "no"})
         return record
 
     def to_dict(self):
@@ -52,6 +54,8 @@ class Approval(models.Model):
                 "create_date",
                 "write_date",
                 "external_id",
+                "id",
+                "changed_by_is",
             ]:
                 continue
             f = self._fields[field]

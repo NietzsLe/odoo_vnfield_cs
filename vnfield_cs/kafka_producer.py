@@ -15,7 +15,9 @@ def produce(env, value, headers):
 
     # Tạo KafkaProducer (kết nối Kafka)
     producer = KafkaProducer(
-        bootstrap_servers=env.sudo().get_param("vnfield_cs.kafka_server"),
+        bootstrap_servers=[
+            env["ir.config_parameter"].sudo().get_param("vnfield_cs.kafka_server")
+        ],
         value_serializer=lambda v: (
             json.dumps(v).encode("utf-8")
             if isinstance(v, dict)

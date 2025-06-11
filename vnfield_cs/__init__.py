@@ -24,3 +24,4 @@ from . import wizards
 from . import services
 
 # from . import wizards
+from .kafka_consumer import start_kafka_consumer

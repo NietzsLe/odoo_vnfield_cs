@@ -25,3 +25,5 @@ from odoo.tools.float_utils import float_compare
 
 class IssueType(models.Model):
     _inherit = "vnfield.issue.type"
+    external_id = fields.Integer()
+    changed_by_is = fields.Boolean()

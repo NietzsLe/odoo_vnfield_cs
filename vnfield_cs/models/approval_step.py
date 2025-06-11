@@ -17,13 +17,12 @@ class ApprovalStep(models.Model):
         # Gán giá trị mặc định hoặc xử lý logic
 
         record = super(ApprovalStep, self).create(vals)
-        if not vals["changed_by_is"]:
-            if not self.changed_by_is == "yes":
-                # Hành động sau khi tạo
-                integration_service = ApprovalStepIntegrationService(self.env)
-                integration_service.create(record, self.env.user)
-            else:
-                self.write({"changed_by_is": "no"})
+        if (not "changed_by_is" in vals) or vals["changed_by_is"] == "no":
+            # Hành động sau khi tạo
+            integration_service = ApprovalStepIntegrationService(self.env)
+            integration_service.create(record, self.env.user)
+        else:
+            self.write({"changed_by_is": "no"})
         return record
 
     @api.model
@@ -31,16 +30,15 @@ class ApprovalStep(models.Model):
         # Gán giá trị mặc định hoặc xử lý logic
 
         record = super(ApprovalStep, self).write(vals)
-        if not vals["changed_by_is"]:
-            if not self.changed_by_is == "yes":
-                if record:
-                    record = self.env["vnfield.approval.step"].browse(self.id)
-                    # Hành động sau khi tạo
-                    print("@Approval step self: ", self.env.user.login)
-                    integration_service = ApprovalStepIntegrationService(self.env)
-                    integration_service.update(vals, record, self.env.user)
-            else:
-                self.write({"changed_by_is": "no"})
+        if (not "changed_by_is" in vals) or vals["changed_by_is"] == "no":
+            if record:
+                record = self.env["vnfield.approval.step"].browse(self.id)
+                # Hành động sau khi tạo
+                print("@Approval step self: ", self.env.user.login)
+                integration_service = ApprovalStepIntegrationService(self.env)
+                integration_service.update(vals, record, self.env.user)
+        else:
+            self.write({"changed_by_is": "no"})
 
         return record
 
@@ -53,6 +51,8 @@ class ApprovalStep(models.Model):
                 "create_date",
                 "write_date",
                 "external_id",
+                "id",
+                "changed_by_is",
             ]:
                 continue
             f = self._fields[field]

@@ -3,6 +3,8 @@ from odoo import models, fields
 
 class ResUsers(models.Model):
     _inherit = "res.users"
+    external_id = fields.Integer()
+    changed_by_is = fields.Boolean()
 
     organization_name = fields.Char(string="Organization")
     external_login = fields.Char(string="External login")

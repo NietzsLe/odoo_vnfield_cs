@@ -25,3 +25,5 @@ from odoo.tools.float_utils import float_compare
 
 class ApprovalStepType(models.Model):
     _inherit = "vnfield.approval.step.type"
+    external_id = fields.Integer()
+    changed_by_is = fields.Boolean()

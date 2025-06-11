@@ -14,11 +14,15 @@ def start_kafka_consumer(env):
         _logger.info("⚡ Kafka consumer đang chạy...")
         consumer = KafkaConsumer(
             "odoo-integration",
-            bootstrap_servers=env.sudo().get_param("vnfield_cs.kafka_server"),
+            bootstrap_servers=[
+                env["ir.config_parameter"].sudo().get_param("vnfield_cs.kafka_server")
+            ],
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
             key_deserializer=lambda m: json.loads(m.decode("utf-8")),
             group_id="odoo-consumer-"
-            + env.sudo().get_param("vnfield_cs.organization_name"),
+            + env["ir.config_parameter"]
+            .sudo()
+            .get_param("vnfield_cs.organization_name"),
         )
 
         for msg in consumer:
@@ -39,7 +43,12 @@ def start_kafka_consumer(env):
                                 )
                                 if approval_step:
                                     print(approval_step)
+                                    msg.value["changed_by_is"] = "yes"
                                     approval_step.write(msg.value)
+                        if msg.headers["method"] == "create":
+                            print(approval_step)
+                            msg.value["changed_by_is"] = "yes"
+                            approval_step.create(msg.value)
             except Exception as e:
                 _logger.error("❌ Lỗi xử lý Kafka message: %s", e)
 
