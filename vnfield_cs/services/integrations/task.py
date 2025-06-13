@@ -101,15 +101,23 @@ class TaskIntegrationService:
 
     def create(self, task: "Task", user: "ResUsers"):
 
-        if task.approver_id.id and not self.helper.user_is_internal(task.approver_id):
-            if task.approval_id.id:
-                approval_data = task.approval_id.to_dict()
-                approval_data["requester_id"] = (
-                    task.approval_id.requester_id.external_id
-                )
-                response = self.approval_client.create(approval_data, task, user)
-                task.approval_id.write({"external_id": response["external_id"]})
+        if (
+            (task.assignee_id and not self.helper.user_is_internal(task.assignee_id))
+            or (task.verifier_id and not self.helper.user_is_internal(task.verifier_id))
+            or (task.assigner_id and not self.helper.user_is_internal(task.assigner_id))
+        ):
             task_data = task.to_dict()
-            task_data["approver_id"] = task.approver_id.external_id
+            if "assignee_id" in task_data and (
+                task.assignee_id and not self.helper.user_is_internal(task.assignee_id)
+            ):
+                task_data["assignee_id"] = task.assignee_id.external_id
+            if "assigner_id" in task_data and (
+                task.assigner_id and not self.helper.user_is_internal(task.assigner_id)
+            ):
+                task_data["assigner_id"] = task.assigner_id.external_id
+            if "verifier_id" in task_data and (
+                task.verifier_id and not self.helper.user_is_internal(task.verifier_id)
+            ):
+                task_data["verifier_id"] = task.verifier_id.external_id
             response = self.task_client.create(task_data, task, user)
             task.write({"external_id": response["external_id"]})
