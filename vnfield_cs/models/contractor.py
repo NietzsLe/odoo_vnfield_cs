@@ -2,44 +2,38 @@
 #############################################################################
 #
 #    VN Field Contractor System 
-#    Enhanced User Model với External Integration
+#    Enhanced Contractor Model với External Integration
 #
 #############################################################################
 
 from odoo import models, fields, api
 
 # ═══════════════════════════════════════════════════════════
-# ═             🧑‍💼 ENHANCED USER MODEL                    ═
+# ═             👥 ENHANCED CONTRACTOR MODEL               ═
 # ═══════════════════════════════════════════════════════════
 
-class ResUsers(models.Model):
-    _inherit = "res.users"
-    _description = "Enhanced User Model với JSON-RPC Integration"
+class Contractor(models.Model):
+    _inherit = "vnfield.contractor"
+    _description = "Enhanced Contractor Model với IS Integration"
 
     # ─────────────── 🌐 EXTERNAL INTEGRATION FIELDS ───────────────
     external_id = fields.Integer(
         string="External ID",
-        help="ID của user trên Integration System (IS)",
+        help="ID của contractor trên Integration System (IS)",
         copy=False,
         readonly=True
     )
-    
-    external_password = fields.Char(
-        string="External Password", 
-        help="Password để authenticate với Integration System qua JSON-RPC",
-        copy=False
-    )
 
-    # ─────────────── � INTEGRATION HELPER METHODS ───────────────
+    # ─────────────── 🔧 INTEGRATION HELPER METHODS ───────────────
     
     @api.model
     def get_external_reference(self):
         """
-        📞 Get external system reference cho JSON-RPC calls
+        📞 Get external system reference cho API calls
         """
         return {
             'external_id': self.external_id,
-            'login': self.login
+            'name': self.name
         }
     
     def _prepare_is_sync_data(self):
@@ -48,10 +42,9 @@ class ResUsers(models.Model):
         """
         return {
             'name': self.name,
-            'login': self.login,
-            'email': self.email,
-            'active': self.active,
-            'contractor_id': self.contractor_id.external_id if self.contractor_id else False
+            'email': self.email if hasattr(self, 'email') else False,
+            'phone': self.phone if hasattr(self, 'phone') else False,
+            'active': self.active
         }
 
 # ═══════════════════════════════════════════════════════════
@@ -63,21 +56,24 @@ class ResUsers(models.Model):
 
 🔗 INTERNAL ODOO DEPENDENCIES:
 - odoo.models.Model: Base class cho Odoo models
-- odoo.fields: Field types (Integer, Char) 
+- odoo.fields: Field types (Integer)
 - odoo.api: Decorators (@api.model)
 
 🔗 VNFIELD BASE DEPENDENCIES:
-- res.users: Base user model được inherit từ vnfield module
-- contractor_id: Field relationship đến vnfield.contractor model
+- vnfield.contractor: Base contractor model được inherit
+- name: Contractor name field
+- email: Contact email field
+- phone: Contact phone field  
+- active: Boolean field cho record status
 
 🔗 EXTERNAL INTEGRATION:
-- external_id: Maps to Integration System user records
-- external_password: Authentication cho JSON-RPC calls  
-- JSON-RPC protocol: Communication với Integration System
+- external_id: Maps to Integration System contractor records
+- JSON-RPC: Communication protocol với IS
+- API responses: Dictionary format for external consumption
 
 🔗 BUSINESS LOGIC DEPENDENCIES:
-- User authentication: External password cho JSON-RPC integration
-- Contractor relationship: User thuộc về contractor nào
-- IS synchronization: Data sync với Integration System
-- API integration: JSON-RPC method calls
+- Multi-site contractor management: CS ↔ IS contractor synchronization
+- Contract negotiation: External contractor mapping cho agreement
+- Task assignment: Cross-contractor task delegation
+- Resource sharing: Contractor capacity và availability
 """

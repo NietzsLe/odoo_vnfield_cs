@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- ═              📡 KAFKA CONFIGURATION PARAMETERS               ═ -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+
+        <!-- 🔧 Bootstrap Server Configuration -->
+        <record id="kafka_bootstrap_servers" model="ir.config_parameter">
+            <field name="key">vnfield.kafka.bootstrap_servers</field>
+            <field name="value">localhost:9092</field>
+        </record>
+
+        <!-- 🎯 Default Consumer Group ID -->
+        <record id="kafka_consumer_group" model="ir.config_parameter">
+            <field name="key">vnfield.kafka.consumer_group_id</field>
+            <field name="value">vnfield_cs_consumer</field>
+        </record>
+
+        <!-- ⏱️ Consumer Timeout Configuration -->
+        <record id="kafka_consumer_timeout" model="ir.config_parameter">
+            <field name="key">vnfield.kafka.consumer_timeout</field>
+            <field name="value">5.0</field>
+        </record>
+
+        <!-- 📊 Max Messages Per Consumption -->
+        <record id="kafka_max_messages" model="ir.config_parameter">
+            <field name="key">vnfield.kafka.max_messages</field>
+            <field name="value">10</field>
+        </record>
+
+        <!-- 🔄 Producer Retry Configuration -->
+        <record id="kafka_producer_retries" model="ir.config_parameter">
+            <field name="key">vnfield.kafka.producer_retries</field>
+            <field name="value">3</field>
+        </record>
+
+        <!-- 📡 Default Topic Prefix -->
+        <record id="kafka_topic_prefix" model="ir.config_parameter">
+            <field name="key">vnfield.kafka.topic_prefix</field>
+            <field name="value">vnfield_cs</field>
+        </record>
+
+    </data>
+</odoo>

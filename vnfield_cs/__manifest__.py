@@ -1,52 +1,57 @@
 # -*- coding: utf-8 -*-
-#############################################################################
+# ═══════════════════════════════════════════════════
+# ═             🏗️ VNFIELD CONTRACTOR SYSTEM        ═
+# ═   Multi-site contractor management với IS sync   ═
+# ═══════════════════════════════════════════════════
 #
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Saneen K (<https://www.cybrosys.com>)
+#    Original Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Enhanced for contractor management by Assistant
 #
 #    You can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU LESSER GENERAL PUBLIC LICENSE (LGPL v3) for more details.
-#
-#    You should have received a copy of the GNU LESSER GENERAL PUBLIC LICENSE
-#    (LGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
 #############################################################################
 {
-    "name": "VN Field For Contractor",
-    "version": "17.0.1.0.1",
-    "category": "Approval",
-    "author": "Nhan Le",
-    "depends": ["base", "mail", "web_m2x_options", "rest_api_odoo", "vnfield"],
-    "data": [
-        # "views/actions.xml",
-        # "views/project_views.xml",
-        # "views/task_type_views.xml",
-        # "views/issue_type_views.xml",
-        # "views/approval_step_type_views.xml",
-        # "views/approval_views.xml",
-        # "views/issue_views.xml",
-        # "views/task_views.xml",
-        # "views/approval_step_views.xml",
-        # "wizards/approval_step_wizards.xml",
-        # "views/menu.xml",
-        "views/res_users_views.xml",
-        "data/ir_config_parameter_data.xml",
-        "data/default_res_users.xml",
-        # "data/rest_api_odoo.xml",
-        # "data/task_type.xml",
-        # "security/security.xml",
-        # "data/ir_cron.xml",
+    "name": "🏗️ VN Field Contractor System (CS)",
+    "version": "17.0.2.0.0",
+    "category": "Project Management", 
+    "summary": "Multi-site contractor management với Integration System sync",
+    "description": """
+        🏗️ VN Field Contractor System (CS)
+        ===================================
+        
+        ✨ Features:
+        • 👷 Multi-site contractor management
+        • 📄 Agreement management between contractors  
+        • 📋 Enhanced task management và assignment
+        • 🌐 JSON-RPC integration với Integration System (IS)
+        • 🔄 Kafka message broker cho change propagation
+        • 📊 Professional kanban và form views
+        • 🎯 Workflow automation và approval processes
+        
+        🔧 Technical:
+        • Odoo 17.0 compatible
+        • REST API integration
+        • External system synchronization
+        • Modern UI/UX design
+    """,
+    "author": "VN Field Team",
+    "website": "https://vnfield.com",
+    "depends": [
+        "base", 
+        "mail", 
+        "vnfield",
     ],
-    "post_init_hook": "start_kafka_consumer",
-    "license": "AGPL-3",
+    "external_dependencies": {
+        "python": ["confluent_kafka"],
+    },
+    "data": [
+        "data/kafka_config.xml",
+        "views/enhanced_views.xml",
+    ],
+    "demo": [],
+    "images": ["static/description/banner.png"],
+    "license": "LGPL-3",
     "installable": True,
     "auto_install": False,
     "application": True,

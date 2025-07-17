@@ -21,10 +21,13 @@
 #############################################################################
 from . import approval
 from . import approval_step
-from . import approval_step_type
 from . import issue_type
 from . import issue
 from . import task
 from . import task_tree
 from . import task_type
 from . import project
+from . import res_users
+from . import contractor
+from . import kafka_cron
+from . import kafka_util

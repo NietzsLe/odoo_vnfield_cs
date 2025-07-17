@@ -1,67 +1,87 @@
-from odoo import api, fields, models
-from odoo.tools.float_utils import float_compare
-from odoo.exceptions import ValidationError, UserError
-from ..services.integrations.approval_step import ApprovalStepIntegrationService
+# -*- coding: utf-8 -*-
+#############################################################################
+#
+#    VN Field Contractor System 
+#    Enhanced Approval Step Model với External Integration
+#
+#############################################################################
 
+from odoo import models, fields, api
+
+# ═══════════════════════════════════════════════════════════
+# ═             ✅ ENHANCED APPROVAL STEP MODEL            ═
+# ═══════════════════════════════════════════════════════════
 
 class ApprovalStep(models.Model):
     _inherit = "vnfield.approval.step"
+    _description = "Enhanced Approval Step Model với IS Integration"
 
-    external_id = fields.Integer()
-    changed_by_is = fields.Selection(
-        selection=[("yes", "Yes"), ("no", "No")], default="no"
+    # ─────────────── 🌐 EXTERNAL INTEGRATION FIELDS ───────────────
+    external_id = fields.Integer(
+        string="External ID",
+        help="ID của approval step trên Integration System (IS)",
+        copy=False,
+        readonly=True
     )
 
+    # ─────────────── 🔧 INTEGRATION HELPER METHODS ───────────────
+    
     @api.model
-    def create(self, vals):
-        # Gán giá trị mặc định hoặc xử lý logic
+    def get_external_reference(self):
+        """
+        📞 Get external system reference cho API calls
+        """
+        return {
+            'external_id': self.external_id,
+            'step_sequence': self.sequence if hasattr(self, 'sequence') else 0
+        }
+    
+    def _prepare_is_sync_data(self):
+        """
+        📊 Prepare data for Integration System synchronization
+        """
+        return {
+            'name': self.name,
+            'status': self.status,
+            'approver_id': self.approver_id.external_id if self.approver_id and self.approver_id.external_id else False,
+            'approval_id': self.approval_id.external_id if self.approval_id and hasattr(self.approval_id, 'external_id') and self.approval_id.external_id else False,
+            'comment': self.comment if hasattr(self, 'comment') else False,
+            'reviewed_at': self.reviewed_at.isoformat() if hasattr(self, 'reviewed_at') and self.reviewed_at else False
+        }
 
-        record = super(ApprovalStep, self).create(vals)
-        if (not "changed_by_is" in vals) or vals["changed_by_is"] == "no":
-            # Hành động sau khi tạo
-            integration_service = ApprovalStepIntegrationService(self.env)
-            integration_service.create(record, self.env.user)
-        else:
-            self.write({"changed_by_is": "no"})
-        return record
 
-    @api.model
-    def write(self, vals):
-        # Gán giá trị mặc định hoặc xử lý logic
 
-        record = super(ApprovalStep, self).write(vals)
-        if (not "changed_by_is" in vals) or vals["changed_by_is"] == "no":
-            if record:
-                record = self.env["vnfield.approval.step"].browse(self.id)
-                # Hành động sau khi tạo
-                print("@Approval step self: ", self.env.user.login)
-                integration_service = ApprovalStepIntegrationService(self.env)
-                integration_service.update(vals, record, self.env.user)
-        else:
-            self.write({"changed_by_is": "no"})
+# ═══════════════════════════════════════════════════════════
+# ═           🏗️ SYMBOL DEPENDENCIES ANALYSIS              ═
+# ═══════════════════════════════════════════════════════════
 
-        return record
+"""
+📋 DEPENDENCIES ĐƯỢC SỬ DỤNG TRONG FILE NÀY:
 
-    def to_dict(self):
-        self.ensure_one()
-        result = {}
-        for field in self._fields:
-            if field in [
-                "__last_update",
-                "create_date",
-                "write_date",
-                "external_id",
-                "id",
-                "changed_by_is",
-            ]:
-                continue
-            f = self._fields[field]
-            if (
-                not isinstance(f, fields.Many2one)
-                and not isinstance(f, fields.Many2many)
-                and not isinstance(f, fields.One2many)
-                and self[field]
-            ):
+🔗 INTERNAL ODOO DEPENDENCIES:
+- odoo.models.Model: Base class cho Odoo models
+- odoo.fields: Field types (Integer, Selection)
+- odoo.api: Decorators (@api.model)
 
-                result[field] = self[field]
-        return result
+🔗 VNFIELD BASE DEPENDENCIES:
+- vnfield.approval.step: Base approval step model được inherit
+- name: Step name/description field
+- status: Selection field (waiting, in-progress, approved, rejected)
+- approver_id: Many2one to res.users
+- approval_id: Many2one to vnfield.approval
+- sequence: Integer field cho step ordering
+- comment: Text field cho approval comments
+- reviewed_at: Datetime field cho review timestamp
+
+🔗 EXTERNAL INTEGRATION:
+- external_id: Maps to Integration System approval step records
+- JSON-RPC: Communication protocol với IS
+- API responses: Dictionary format for external consumption
+
+🔗 BUSINESS LOGIC DEPENDENCIES:
+- Sequential approval workflow: Step ordering và processing
+- User permissions: Approver assignment và validation
+- Status tracking: Workflow state management
+- Multi-site sync: CS ↔ IS approval step synchronization
+- Review process: Comment và timestamp tracking
+"""
